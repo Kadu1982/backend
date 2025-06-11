@@ -13,7 +13,8 @@ public class OperadorMapper {
         dto.setId(operador.getId());
         dto.setNome(operador.getNome());
         dto.setLogin(operador.getLogin());
-        dto.setSenha(operador.getSenha());
+        // A linha abaixo foi removida pois o DTO não deve expor a senha.
+        // dto.setSenha(operador.getSenha());
         dto.setCargo(operador.getCargo());
         dto.setUnidadeAtual(operador.getUnidadeAtual());
 
@@ -26,19 +27,26 @@ public class OperadorMapper {
         return dto;
     }
 
-    public static Operador toEntity(OperadorDTO dto, UnidadeSaude unidade) {
+    public static Operador toEntity(OperadorDTO dto) {
         if (dto == null) return null;
 
-        return Operador.builder()
+        Operador.OperadorBuilder builder = Operador.builder()
                 .id(dto.getId())
                 .nome(dto.getNome())
                 .login(dto.getLogin())
-                .senha(dto.getSenha())
+                // A senha não é mapeada aqui. Ela deve ser tratada na camada de serviço (service).
                 .cargo(dto.getCargo())
                 .unidadeAtual(dto.getUnidadeAtual())
-                .unidadeSaude(unidade)
                 .perfis(dto.getPerfis())
-                .permissoes(dto.getPermissoes())
-                .build();
+                .permissoes(dto.getPermissoes());
+
+        // Associa a UnidadeSaude usando o ID do DTO
+        if (dto.getUnidadeId() != null) {
+            UnidadeSaude unidade = new UnidadeSaude();
+            unidade.setId(dto.getUnidadeId());
+            builder.unidadeSaude(unidade);
+        }
+
+        return builder.build();
     }
 }
